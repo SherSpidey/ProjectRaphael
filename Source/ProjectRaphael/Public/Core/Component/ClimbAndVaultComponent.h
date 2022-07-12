@@ -79,6 +79,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	float OwnerRadius;
+	
+	UPROPERTY(BlueprintReadOnly)
+	float ClimbHeight;
+
+	// When the curve and climb start
+	UPROPERTY(BlueprintReadOnly)
+	float ClimbCurveStartPoint;
 
 	UPROPERTY(BlueprintReadWrite)
 	FTransform TargetTransform;
@@ -88,10 +95,17 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	FTransform AnimStartTransformOffset;
+
+	UPROPERTY(BlueprintReadOnly)
+	FClimbInfo CurrentClimbInfo;
+
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
 	bool Enabled;
+
+	UPROPERTY(BlueprintReadOnly, Category="ClimbInfo")
+	bool bSuccess;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
 	float MaxReachDistance;
@@ -99,6 +113,12 @@ public:
 	// This is a adjustment for room check !!!!!!!!!
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
 	float RoomTolerance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	FClimbInfo LowClimbInfo;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	FClimbInfo HighClimbInfo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
 	FTraceParam LandTraceParam;
@@ -120,6 +140,15 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
 	bool CheckForClimb(FTraceParam& TraceParam, FTransform& FinishTransform);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
+	FClimbInfo GetClimInfo();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
+	void ClimbPreparation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
+	void UpdateClimb(float TimePlayed, float BlendIn);
 
 public:	
 	// Called every frame

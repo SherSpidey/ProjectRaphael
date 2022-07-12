@@ -3,6 +3,7 @@
 
 #include "Core/Component/ClimbAndVaultComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Curves/CurveVector.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -11,6 +12,7 @@
 // Sets default values for this component's properties
 UClimbAndVaultComponent::UClimbAndVaultComponent():
 Enabled(true),
+bSuccess(false),
 MaxReachDistance(300),
 RoomTolerance(1.f)
 {
@@ -66,6 +68,67 @@ void UClimbAndVaultComponent::InitOwner()
 	OwnerRadius = Owner->GetCapsuleComponent()->GetScaledCapsuleRadius();
 }
 
+//Chose which climb action to use, can be override in BP
+FClimbInfo UClimbAndVaultComponent::GetClimInfo_Implementation()
+{
+	// Climb info not set, error 
+	if(LowClimbInfo.MaxClimbHeight == 0 || HighClimbInfo.MaxClimbHeight == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ClimbInfo has no valid data!"))
+	}
+	if(ClimbHeight > LowClimbInfo.MaxClimbHeight)
+	{
+		return HighClimbInfo;
+	}
+	return LowClimbInfo;
+}
+
+// Init the start climb info and param
+void UClimbAndVaultComponent::ClimbPreparation_Implementation()
+{
+	CurrentClimbInfo = GetClimInfo();
+	// Set actual transform offset(Only location)
+	const FVector ActualLocationOffset = Owner->GetActorLocation() - TargetTransform.GetLocation();
+	ActualStartTransformOffset.SetLocation(ActualLocationOffset);
+
+	// Set anim transform offset
+	const FVector ClimbDirection = TargetTransform.GetRotation().GetForwardVector();
+	const FVector AnimLocation = TargetTransform.GetLocation() - FVector(ClimbDirection.X * CurrentClimbInfo.ClimbOffset.Y, ClimbDirection.Y * CurrentClimbInfo.ClimbOffset.Y, CurrentClimbInfo.ClimbOffset.Z);
+	const FVector AnimLocationOffset = AnimLocation - TargetTransform.GetLocation();
+	AnimStartTransformOffset.SetLocation(AnimLocationOffset);
+	AnimStartTransformOffset.SetRotation(TargetTransform.GetRotation());
+
+	ClimbCurveStartPoint = UKismetMathLibrary::MapRangeClamped(ClimbHeight, CurrentClimbInfo.MinClimbHeight, CurrentClimbInfo.MaxClimbHeight, CurrentClimbInfo.MinClimbStartTime, CurrentClimbInfo.MaxClimbStartTime);
+}
+
+// Update the owner's transform along with the climb animation
+void UClimbAndVaultComponent::UpdateClimb_Implementation(float TimePlayed, float BlendIn)
+{
+	// PositionAlpha:CurveValue.X, X/Y-Alpha:CurveValue.Y, Z-Alpha:CurveValue.Z
+	const FVector CurveValue = CurrentClimbInfo.ClimbCurve->GetVectorValue(TimePlayed + ClimbCurveStartPoint);
+
+	// Lerp XY location
+	const FVector XYLocation = FVector(AnimStartTransformOffset.GetLocation().X, AnimStartTransformOffset.GetLocation().Y, ActualStartTransformOffset.GetLocation().Z);
+	const FVector LerpXYLocation = UKismetMathLibrary::VLerp(ActualStartTransformOffset.GetLocation(), XYLocation, CurveValue.Y);
+
+	// Lerp Z location
+	const float LerpZLocation = UKismetMathLibrary::Lerp(ActualStartTransformOffset.GetLocation().Z, AnimStartTransformOffset.GetLocation().Z, CurveValue.Z);
+
+	// Lerp rotation
+	const FRotator LerpRotation = UKismetMathLibrary::RLerp(FRotator(ActualStartTransformOffset.GetRotation()), FRotator(AnimStartTransformOffset.GetRotation()), CurveValue.Y, false);
+
+	// Make the lerp offset
+	const FTransform LerpTransformOffset = FTransform(LerpRotation, FVector(LerpXYLocation.X, LerpXYLocation.Y, LerpZLocation), FVector::OneVector);
+
+	// Lerp the wanted target transform
+	const FTransform LerpTargetTransform = UKismetMathLibrary::TLerp(TargetTransform + LerpTransformOffset, TargetTransform, CurveValue.X);
+
+	// Lerp the finial update owner transform
+	const FTransform UpdateOwnerTransform = UKismetMathLibrary::TLerp(ActualStartTransformOffset + TargetTransform, LerpTargetTransform, BlendIn);
+
+	// Set the final transform to owner
+	Owner->SetActorTransform(UpdateOwnerTransform);
+}
 
 // Called every frame
 void UClimbAndVaultComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -86,8 +149,7 @@ void UClimbAndVaultComponent::Climb()
 	{
 		InitOwner();
 	}
-
-	bool bSuccess;
+	//Check for climb
 	if(Owner->GetMovementComponent()->IsFalling())
 	{
 		bSuccess = CheckForClimb(AirTraceParam, TargetTransform);
@@ -101,8 +163,8 @@ void UClimbAndVaultComponent::Climb()
 	{
 		return;
 	}
-	
-	ActualStartTransformOffset.SetLocation(Owner->GetActorLocation() - TargetTransform.GetLocation());
+	// Set Climb Start
+	ClimbPreparation();
 }
 
 bool UClimbAndVaultComponent::CheckForClimb_Implementation(FTraceParam& TraceParam, FTransform& FinishTransform)
@@ -134,7 +196,7 @@ bool UClimbAndVaultComponent::CheckForClimb_Implementation(FTraceParam& TracePar
 	
 	// Second trace to test the climb point exists
 	const FVector BlockLocation = FrontTraceHit.ImpactPoint;
-	const FVector HitDirection = FrontTraceHit.ImpactNormal * -1.f;
+	const FVector HitDirection = FVector(FrontTraceHit.ImpactNormal.X, FrontTraceHit.ImpactNormal.Y, 0) * -1.f;
 	const FVector DownTraceEndLocation = FVector(BlockLocation.X, BlockLocation.Y, ActualStart.GetLocation().Z - OwnerHalfHeight + 2.f) + HitDirection * 10.f;
 	const FVector DownTraceStartLocation = DownTraceEndLocation + FVector(0, 0,   TraceParam.TraceMaxHeight + TraceParam.TraceDownRadius);
 	FHitResult DownTraceHit;
@@ -174,9 +236,10 @@ bool UClimbAndVaultComponent::CheckForClimb_Implementation(FTraceParam& TracePar
 	{
 		return false;
 	}
-	
+	ClimbHeight = HeightOffset;
 	FinishTransform.SetLocation(TargetLocation);
 	FinishTransform.SetRotation(FQuat(TargetRotation));
+	FinishTransform.SetScale3D(FVector::OneVector);
 	//UKismetSystemLibrary::DrawDebugSphere(this, FinishTransform.GetLocation(), 30, 12, FLinearColor::Black, 10, 1);
 	
 	return true;

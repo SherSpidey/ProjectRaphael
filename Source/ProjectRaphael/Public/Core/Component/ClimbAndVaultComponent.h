@@ -4,10 +4,64 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "ClimbAndVaultComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FClimbInfo
+{
+	GENERATED_USTRUCT_BODY()
 
-UCLASS( ClassGroup=(Ability), meta=(BlueprintSpawnableComponent) )
+	// Climb montage to play
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* ClimbMontage;
+
+	// Climb curve to apply
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UCurveVector* ClimbCurve;
+
+	// X, Y, Z move for anim root in climb montage
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FVector ClimbOffset;
+
+	// Min climbable height
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MinClimbHeight;
+
+	// Max climbable height
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxClimbHeight;
+
+	// The start time in climb curve when start with min climb height
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MinClimbStartTime;
+
+	// The start time in climb curve when start with max climb height
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxClimbStartTime;
+	
+};
+
+USTRUCT(BlueprintType)
+struct FTraceParam
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceMinHeight;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceMaxHeight;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceForwardRadius;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceDownRadius;
+	
+};
+
+UCLASS(ClassGroup=(Ability), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class PROJECTRAPHAEL_API UClimbAndVaultComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -17,15 +71,63 @@ public:
 	UClimbAndVaultComponent();
 
 protected:
+	UPROPERTY(BlueprintReadOnly)
+	ACharacter* Owner;
+
+	UPROPERTY(BlueprintReadOnly)
+	float OwnerHalfHeight;
+
+	UPROPERTY(BlueprintReadOnly)
+	float OwnerRadius;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTransform TargetTransform;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTransform ActualStartTransformOffset;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTransform AnimStartTransformOffset;
+	
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	bool Enabled;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	float MaxReachDistance;
+
+	// This is a adjustment for room check !!!!!!!!!
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	float RoomTolerance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	FTraceParam LandTraceParam;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	FTraceParam AirTraceParam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ClimbInfo")
+	TArray<TEnumAsByte<EObjectTypeQuery>> TraceTargets;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ClimbInfo")
+	TEnumAsByte<EDrawDebugTrace::Type> ClimbDebugType;
+
+protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	void InitOwner();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
+	bool CheckForClimb(FTraceParam& TraceParam, FTransform& FinishTransform);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void CheckForClimb();
+	void Climb();
 
-		
+	UFUNCTION(BlueprintCallable)
+	void SetFunctionEnabled(bool Enable) { Enabled = Enable;}
 };

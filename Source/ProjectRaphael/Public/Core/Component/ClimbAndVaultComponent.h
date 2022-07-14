@@ -87,17 +87,34 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float ClimbCurveStartPoint;
 
+	// the curve played time
+	UPROPERTY(BlueprintReadOnly)
+	float ClimbCurvePlayBackTime;
+
+	// the curve's Duration
+	UPROPERTY(BlueprintReadOnly)
+	float ClimbUpdateDuration;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsClimbing;
+
 	UPROPERTY(BlueprintReadWrite)
 	FTransform TargetTransform;
 
 	UPROPERTY(BlueprintReadWrite)
-	FTransform ActualStartTransformOffset;
+	FVector ActualStartLocationOffset;
 
 	UPROPERTY(BlueprintReadWrite)
-	FTransform AnimStartTransformOffset;
+	FRotator ActualStartRotation;
+
+	UPROPERTY(BlueprintReadWrite)
+	FVector AnimStartLocationOffset;
 
 	UPROPERTY(BlueprintReadOnly)
 	FClimbInfo CurrentClimbInfo;
+
+	UPROPERTY(BlueprintReadOnly)
+	FTimerHandle UpdateTimerHandle;
 
 	
 public:
@@ -113,6 +130,13 @@ public:
 	// This is a adjustment for room check !!!!!!!!!
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
 	float RoomTolerance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	float ClimbRate;
+
+	// The curve play step time, useless when you override start function
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
+	float ClimbCurvePlayStepTime;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ClimbInfo")
 	FClimbInfo LowClimbInfo;
@@ -138,6 +162,8 @@ protected:
 
 	void InitOwner();
 
+	void InTimerCall();
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
 	bool CheckForClimb(FTraceParam& TraceParam, FTransform& FinishTransform);
 
@@ -146,6 +172,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
 	void ClimbPreparation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
+	void StartClimb();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Climb")
 	void UpdateClimb(float TimePlayed, float BlendIn);
@@ -159,4 +188,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetFunctionEnabled(bool Enable) { Enabled = Enable;}
+
+	// Call when climb start
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Custom")
+	void SetOwnerStatus();
 };

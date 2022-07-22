@@ -2,9 +2,12 @@
 
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "RaphaelParticle.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnParticleTerpFinish, int, DorpID);
 
 UCLASS()
 class PROJECTRAPHAEL_API ARaphaelParticle : public AActor
@@ -15,7 +18,16 @@ public:
 	// Sets default values for this actor's properties
 	ARaphaelParticle();
 
+protected:
+	bool bIsLoad;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector TargetPosition;
+
 public:
+
+	FOnParticleTerpFinish OnInterpFinish;
+	
 	// The curve used for loading
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
 	class UCurveVector* LoadCurve;
@@ -32,7 +44,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
+	// Update Position
+	FORCEINLINE void UpdatePosition(FVector Position) { TargetPosition = Position;}
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DropItself();
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyCurveToPosition();
 
 };

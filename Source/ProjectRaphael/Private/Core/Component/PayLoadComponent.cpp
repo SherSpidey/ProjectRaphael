@@ -6,7 +6,6 @@
 
 // Sets default values for this component's properties
 UPayLoadComponent::UPayLoadComponent():
-ParticleNum(0),
 MaxParticleNum(5),
 PayLoadRadius(50.f)
 {
@@ -23,13 +22,15 @@ void UPayLoadComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// WS
+	ComponentLastPosition = GetComponentLocation();
 	// ...
 	
 }
 
 void UPayLoadComponent::DropParticle(int DropId)
 {
-	if(DropId >= ParticleNum)
+	if(DropId >= PayLoads.Num())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invid Particle ID!"))
 		return ;
@@ -40,35 +41,55 @@ void UPayLoadComponent::DropParticle(int DropId)
 	if(Particle)
 	{
 		Particle->DropItself();
+		Particle->OnInterpFinish.RemoveAll(this);
 	}
 	
 	// No matter valid or not, remove the id info
 	PayLoads.RemoveAt(DropId);
-	ParticleNum--;
+	UpdateDistribution();
 }
 
 void UPayLoadComponent::UpdateDistribution()
 {
-	if(ParticleNum == 0)
+	if(PayLoads.Num() == 0)
 	{
 		return ;
 	}
-	const FVector Right = GetRightVector();
+	const FVector Left = -GetRightVector();
 	const FVector Up = GetUpVector();
-	const FVector InitPosition = GetComponentLocation() + Right * PayLoadRadius;
+	const FVector InitPosition = GetComponentLocation() + Left * PayLoadRadius;
 
 	// The first particle position is always fixed
 	PayLoads[0].Position = InitPosition;
-	if(ParticleNum == 1)
+	if(PayLoads.Num() == 1)
 	{
 		return ;
 	}
 	// calculate gap
-	const float Angular = PI / (ParticleNum - 1);
-	for(int i = 1; i < ParticleNum; ++i)
+	const float Angular = PI / (PayLoads.Num() - 1);
+	for(int i = 1; i < PayLoads.Num(); ++i)
 	{
-		const FVector ParticleDirection = Right * cos(Angular) + Up * sin(Angular);
+		const FVector ParticleDirection = Left * cos(Angular) + Up * sin(Angular);
 		PayLoads[i].Position = ParticleDirection * PayLoadRadius;
+	}
+}
+
+void UPayLoadComponent::UpdateParticles()
+{
+	//Update component if self position
+	const FVector DeltaPosition = GetComponentLocation() - ComponentLastPosition;
+	ComponentLastPosition = GetComponentLocation();
+	//Update particle
+	for(FParticlePayloadInfo& ParticlePayloadInfo : PayLoads)
+	{
+		// Update in array
+		ParticlePayloadInfo.Position += DeltaPosition;
+		// Pass　to particles
+		ARaphaelParticle* Particle = ParticlePayloadInfo.Particle;
+		if(Particle)
+		{
+			Particle->UpdatePosition(ParticlePayloadInfo.Position);
+		}
 	}
 }
 
@@ -78,12 +99,34 @@ void UPayLoadComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	
+	UpdateParticles();
 	// ...
 }
 
 void UPayLoadComponent::LoadParticle(ARaphaelParticle* Particle)
 {
-	
+	if(Particle)
+	{
+		// Add to pay load
+		FParticlePayloadInfo AddedParticleInfo;
+		AddedParticleInfo.Particle = Particle;
+		AddedParticleInfo.Position = FVector::ZeroVector;
+		PayLoads.Add(AddedParticleInfo);
+
+		// Update New Position
+		UpdateDistribution();
+
+		// Update to target position
+		Particle->UpdatePosition(PayLoads.Last().Position);
+		
+		// Lerp particle to position
+		Particle->ApplyCurveToPosition();
+
+		if(PayLoads.Num() > MaxParticleNum)
+		{
+			// Bind delegate if full
+			Particle->OnInterpFinish.AddDynamic(this, &UPayLoadComponent::UPayLoadComponent::DropParticle);
+		}
+	}
 }
 

@@ -29,10 +29,14 @@ public:
 	// Sets default values for this component's properties
 	UPayLoadComponent();
 
+private:
+	// mark when radius changed to trigger function
+	float LastPayloadRadius;
+
+	// copy last Location to update particle position
+	FVector ComponentLastPosition;
+
 protected:
-	// The number of in load particles
-	UPROPERTY(BlueprintReadWrite)
-	int ParticleNum;
 	
 	// The particle idle position, update every frame
 	UPROPERTY(BlueprintReadWrite)
@@ -59,12 +63,18 @@ protected:
 	// Called when changing radius and payload num.
 	void UpdateDistribution();
 
+	//Control payload particles
+	void UpdateParticles();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void LoadParticle(class ARaphaelParticle* Particle);
+	int GetPayLoadNum() {return PayLoads.Num();}
+
+	UFUNCTION(BlueprintCallable)
+	void LoadParticle(ARaphaelParticle* Particle);
 
 		
 };

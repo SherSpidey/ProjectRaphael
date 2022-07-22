@@ -15,6 +15,8 @@ ARaphaelParticle::ARaphaelParticle()
 void ARaphaelParticle::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bIsLoad = false;
 	
 }
 
@@ -22,11 +24,23 @@ void ARaphaelParticle::BeginPlay()
 void ARaphaelParticle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if(bIsLoad)
+	{
+		SetActorLocation(TargetPosition);
+	}
 }
 
-void ARaphaelParticle::DropItself()
+
+void ARaphaelParticle::DropItself_Implementation()
+{
+	bIsLoad = false;
+}
+
+void ARaphaelParticle::ApplyCurveToPosition()
 {
 	
+	SetActorLocation(TargetPosition);
+	bIsLoad = true;
+	OnInterpFinish.Broadcast(0);
 }
 

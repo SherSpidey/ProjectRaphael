@@ -20,37 +20,64 @@ public:
 
 protected:
 	bool bIsLoad;
+
+	float TranslateDuration;
+
+	FVector TranslateStartPosition;
+
+	// Curve used to translate
+	UPROPERTY()
+	class UCurveVector* TranslationCurve;
 	
 	UPROPERTY(BlueprintReadWrite)
 	FVector TargetPosition;
 
+	UPROPERTY(BlueprintReadWrite)
+	FVector PayLoadOriginPosition;
+
+	UPROPERTY(BlueprintReadOnly)
+	float TranslatePlayBackTime;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTimerHandle TranslateTimerHandle;
+
 public:
 
-	FOnParticleTerpFinish OnInterpFinish;
+	FOnParticleTerpFinish OnTranslateFinish;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float TranslateStepTime;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float FollowPayloadSpeed;
 	
 	// The curve used for loading
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
-	class UCurveVector* LoadCurve;
+	UCurveVector* LoadCurve;
 
-	// The curve used for dropping
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
-	UCurveVector* DropCurve;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Default")
+	UStaticMeshComponent* ParticleMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Default")
+	class USphereComponent* ActionArea;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void TranslateUpdate();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Update Position
-	FORCEINLINE void UpdatePosition(FVector Position) { TargetPosition = Position;}
+	FORCEINLINE void UpdatePosition(FVector Position, FVector Origin) { TargetPosition = Position; PayLoadOriginPosition = Origin;}
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DropItself();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ApplyCurveToPosition();
 
 };

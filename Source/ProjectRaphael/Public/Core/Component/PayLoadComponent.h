@@ -30,11 +30,21 @@ public:
 	UPayLoadComponent();
 
 private:
+	// Make sure one update only update distribute once
+	bool bAdjusted;
+	
+	// mark origin radius
+	float OriginRadius;
+	
 	// mark when radius changed to trigger function
 	float LastPayloadRadius;
 
 	// copy last Location to update particle position
 	FVector ComponentLastPosition;
+
+	// copy last rotation to update particle position
+	FRotator ComponentLastRotation;
+
 
 protected:
 	
@@ -52,11 +62,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
 	float PayLoadRadius;
 
+	// Limit when yaw change to update payloads
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float MaxRotationUpdateLimit;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Drop particle after load particle with full payload.
+	UFUNCTION()
 	void DropParticle(int DropId);
 
 	// Arrange with new distribution

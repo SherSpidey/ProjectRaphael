@@ -155,8 +155,8 @@ void UClimbAndVaultComponent::StartClimb_Implementation()
 	{
 		// Update climb transform
 		bIsClimbing = true;
-		World->GetTimerManager().SetTimer(UpdateTimerHandle, this, &UClimbAndVaultComponent::InTimerCall, ClimbCurvePlayStepTime, true);
 		ClimbCurvePlayBackTime = 0.f;
+		World->GetTimerManager().SetTimer(UpdateTimerHandle, this, &UClimbAndVaultComponent::InTimerCall, ClimbCurvePlayStepTime, true);
 
 		// Play anim montage
 		Owner->GetMesh()->GetAnimInstance()->Montage_Play(CurrentClimbInfo.ClimbMontage, ClimbRate, EMontagePlayReturnType::Duration, ClimbCurveStartPoint, true);

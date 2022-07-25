@@ -159,7 +159,21 @@ void UClimbAndVaultComponent::StartClimb_Implementation()
 		World->GetTimerManager().SetTimer(UpdateTimerHandle, this, &UClimbAndVaultComponent::InTimerCall, ClimbCurvePlayStepTime, true);
 
 		// Play anim montage
-		Owner->GetMesh()->GetAnimInstance()->Montage_Play(CurrentClimbInfo.ClimbMontage, ClimbRate, EMontagePlayReturnType::Duration, ClimbCurveStartPoint, true);
+		const USkeletalMeshComponent* Mesh = Owner->GetMesh();
+		if(Mesh)
+		{
+			Mesh->GetAnimInstance()->Montage_Play(CurrentClimbInfo.ClimbMontage, ClimbRate, EMontagePlayReturnType::Duration, ClimbCurveStartPoint, true);
+			const TArray<USceneComponent*>& ChildParts = Mesh->GetAttachChildren();
+			for(USceneComponent* Child : ChildParts)
+			{
+				const USkeletalMeshComponent* ChildMesh = Cast<USkeletalMeshComponent>(Child);
+				if(ChildMesh)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Red, FString::Printf(TEXT("Load")));
+					ChildMesh->GetAnimInstance()->Montage_Play(CurrentClimbInfo.ClimbMontage, ClimbRate, EMontagePlayReturnType::Duration, ClimbCurveStartPoint, true);
+				}
+			}
+		}
 	}
 }
 

@@ -22,6 +22,11 @@ FollowPayloadSpeed(6.f)
 
 	ActionArea = CreateDefaultSubobject<USphereComponent>(TEXT("ActionArea"));
 	ActionArea->SetupAttachment(ParticleMesh);
+	
+	ActionArea->SetCollisionResponseToChannels(ECR_Ignore);
+	ActionArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	ParticleMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 }
 
@@ -63,7 +68,7 @@ void ARaphaelParticle::TranslateUpdate()
 	//UKismetSystemLibrary::DrawDebugSphere(this , GetActorLocation(), 10, 12, FLinearColor::Red, 20, 1);
 }
 
-void ARaphaelParticle::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ARaphaelParticle::OnSphereBeginOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
 	if(OtherActor)
@@ -76,7 +81,7 @@ void ARaphaelParticle::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	}
 }
 
-void ARaphaelParticle::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ARaphaelParticle::OnSphereEndOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if(OtherActor)
@@ -103,6 +108,13 @@ void ARaphaelParticle::Tick(float DeltaTime)
 void ARaphaelParticle::SetChosenReaction(bool Enable)
 {
 	ParticleMesh->SetRenderCustomDepth(Enable);
+}
+
+void ARaphaelParticle::ParticleActive_Implementation()
+{
+	// override in child class
+	SetChosenReaction(false);
+	DropItself();
 }
 
 void ARaphaelParticle::SetInteractReaction_Implementation(bool bShow)

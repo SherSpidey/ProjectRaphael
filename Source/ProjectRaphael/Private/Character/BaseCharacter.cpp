@@ -208,6 +208,15 @@ void ABaseCharacter::UpdateInteractNum(int Amount)
 	}
 }
 
+AActor* ABaseCharacter::TraceForObjectOnce()
+{
+	const bool bLastShouldTrace = bShouldTraceForItems;
+	bShouldTraceForItems = true;
+	TraceForItem();
+	bShouldTraceForItems = bLastShouldTrace;
+	return TraceHitItem;
+}
+
 bool ABaseCharacter::TraceUnderCrossHairs(FHitResult& OutHitResult, FVector& OutHitLocation)
 {
 	// Get viewport size
@@ -334,6 +343,14 @@ void ABaseCharacter::ChosePreviousItem_Implementation()
 	}
 }
 
+void ABaseCharacter::UseChosenItem_Implementation()
+{
+	if(PayloadComponent)
+	{
+		PayloadComponent->ActiveCurrentParticle();
+	}
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -378,6 +395,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("ItemNext", IE_Pressed, this, &ABaseCharacter::ChoseNextItem);
 	PlayerInputComponent->BindAction("ItemPrevious", IE_Pressed, this, &ABaseCharacter::ChosePreviousItem);
+
+	PlayerInputComponent->BindAction("UseItem", IE_Pressed, this, &ABaseCharacter::UseChosenItem);
 
 }
 

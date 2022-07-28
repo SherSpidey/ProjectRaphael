@@ -40,7 +40,7 @@ void UPayLoadComponent::ParticleLoadFinish()
 	const int ParticleNum = PayLoads.Num();
 	if(ParticleNum == 1)
 	{
-		SetPickedParticle(0, false);
+		SetPickedParticle(0, true);
 	}
 	if(ParticleNum > MaxParticleNum)
 	{
@@ -78,6 +78,7 @@ void UPayLoadComponent::DropParticle(int DropId)
 	if(Particle)
 	{
 		Particle->SetChosenReaction(false);
+		Particle->SetOwnerPayloadComponent(nullptr);
 		Particle->DropItself();
 	}
 	
@@ -212,6 +213,7 @@ void UPayLoadComponent::LoadParticle(ARaphaelParticle* Particle)
 		
 		// Update to target position
 		Particle->UpdatePosition(PayLoads.Last().Position, ComponentLastPosition);
+		Particle->SetOwnerPayloadComponent(this);
 		
 		// Bind finish delegate
 		Particle->OnTranslateFinish.AddDynamic(this, &UPayLoadComponent::ParticleLoadFinish);
@@ -225,11 +227,11 @@ void UPayLoadComponent::PickNextParticle()
 {
 	if(CurrentIdx == PayLoads.Num() - 1)
 	{
-		SetPickedParticle(0, false);
+		SetPickedParticle(0, true);
 	}
 	else
 	{
-		SetPickedParticle(CurrentIdx + 1, false);
+		SetPickedParticle(CurrentIdx + 1, true);
 	}
 }
 
@@ -237,11 +239,33 @@ void UPayLoadComponent::PickPreviousParticle()
 {
 	if(CurrentIdx == 0)
 	{
-		SetPickedParticle(PayLoads.Num() - 1, false);
+		SetPickedParticle(PayLoads.Num() - 1, true);
 	}
 	else
 	{
-		SetPickedParticle(CurrentIdx - 1, false);
+		SetPickedParticle(CurrentIdx - 1, true);
+	}
+}
+
+void UPayLoadComponent::ActiveCurrentParticle()
+{
+	if(PayLoads.Num() == 0 || CurrentIdx < 0 || CurrentIdx >= PayLoads.Num())
+	{
+		return ;
+	}
+	ARaphaelParticle* Particle = PayLoads[CurrentIdx].Particle;
+	if(Particle)
+	{
+		// unbind
+		Particle->OnTranslateFinish.RemoveAll(this);
+		Particle->SetOwnerPayloadComponent(nullptr);
+		Particle->ParticleActive();
+	}
+	PayLoads.RemoveAt(CurrentIdx);
+	if(PayLoads.Num() != 0)
+	{
+		UpdateDistribution();
+		PickPreviousParticle();
 	}
 }
 

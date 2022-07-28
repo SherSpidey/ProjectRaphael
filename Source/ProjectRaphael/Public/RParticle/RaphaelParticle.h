@@ -26,6 +26,9 @@ protected:
 
 	FVector TranslateStartPosition;
 
+	UPROPERTY()
+	class UPayLoadComponent* PayLoadComponent;
+
 	// Curve used to translate
 	UPROPERTY()
 	class UCurveVector* TranslationCurve;
@@ -69,7 +72,7 @@ protected:
 	void TranslateUpdate();
 
 	// Interact
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnSphereBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
@@ -78,7 +81,7 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepHitResult);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnSphereEndOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
@@ -92,6 +95,8 @@ public:
 	// Update Position
 	FORCEINLINE void UpdatePosition(FVector Position, FVector Origin) { TargetPosition = Position; PayLoadOriginPosition = Origin;}
 
+	FORCEINLINE void SetOwnerPayloadComponent(UPayLoadComponent* OwnerPayload) { PayLoadComponent = OwnerPayload;}
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DropItself();
 
@@ -100,6 +105,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetChosenReaction(bool Enable);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
+	void ParticleActive();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Show)
 	void SetInteractReaction(bool bShow);

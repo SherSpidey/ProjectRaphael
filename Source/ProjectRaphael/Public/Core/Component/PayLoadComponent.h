@@ -109,6 +109,9 @@ public:
 	void PickPreviousParticle();
 
 	UFUNCTION(BlueprintCallable, Category="Update")
+	void ActiveCurrentParticle();
+
+	UFUNCTION(BlueprintCallable, Category="Update")
 	ARaphaelParticle* GetCurrentParticle() { return PayLoads[CurrentIdx].Particle; };
 
 	FORCEINLINE void SetMaxNum(int Num) { MaxParticleNum = Num; }

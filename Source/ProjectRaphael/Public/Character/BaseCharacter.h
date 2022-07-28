@@ -140,6 +140,10 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
 	void ChosePreviousItem();
 
+	// When player chose a items, use it
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
+	void UseChosenItem();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -158,5 +162,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category=Interact)
 	void UpdateInteractNum(int Amount);
+
+	UFUNCTION(BlueprintCallable, Category=Interact)
+	AActor* TraceForObjectOnce();
 
 };

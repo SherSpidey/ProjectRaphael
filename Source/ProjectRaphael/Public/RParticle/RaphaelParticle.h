@@ -4,13 +4,14 @@
 
 
 #include "CoreMinimal.h"
+#include "Core/Interface/InteractInterface.h"
 #include "GameFramework/Actor.h"
 #include "RaphaelParticle.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnParticleTerpFinish, int, DorpID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleTerpFinish);
 
 UCLASS()
-class PROJECTRAPHAEL_API ARaphaelParticle : public AActor
+class PROJECTRAPHAEL_API ARaphaelParticle : public AActor, public IInteractInterface
 {
 	GENERATED_BODY()
 	
@@ -67,6 +68,23 @@ protected:
 
 	void TranslateUpdate();
 
+	// Interact
+	UFUNCTION()
+	void OnSphereBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepHitResult);
+
+	UFUNCTION()
+	void OnSphereEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -79,5 +97,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ApplyCurveToPosition();
+
+	UFUNCTION(BlueprintCallable)
+	void SetChosenReaction(bool Enable);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Show)
+	void SetInteractReaction(bool bShow);
+	virtual void SetInteractReaction_Implementation(bool bShow) override;
 
 };

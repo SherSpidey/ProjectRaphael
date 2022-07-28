@@ -169,7 +169,6 @@ void UClimbAndVaultComponent::StartClimb_Implementation()
 				const USkeletalMeshComponent* ChildMesh = Cast<USkeletalMeshComponent>(Child);
 				if(ChildMesh)
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Red, FString::Printf(TEXT("Load")));
 					ChildMesh->GetAnimInstance()->Montage_Play(CurrentClimbInfo.ClimbMontage, ClimbRate, EMontagePlayReturnType::Duration, ClimbCurveStartPoint, true);
 				}
 			}

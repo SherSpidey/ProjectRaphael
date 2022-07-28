@@ -3,12 +3,12 @@
 
 #include "Core/Component/PayLoadComponent.h"
 
-#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "RParticle/RaphaelParticle.h"
 
 // Sets default values for this component's properties
 UPayLoadComponent::UPayLoadComponent():
+CurrentIdx(-1),
 MaxParticleNum(5),
 PayLoadRadius(50.f),
 MaxRotationUpdateLimit(2.f)
@@ -35,6 +35,36 @@ void UPayLoadComponent::BeginPlay()
 	
 }
 
+void UPayLoadComponent::ParticleLoadFinish()
+{
+	const int ParticleNum = PayLoads.Num();
+	if(ParticleNum == 1)
+	{
+		SetPickedParticle(0, false);
+	}
+	if(ParticleNum > MaxParticleNum)
+	{
+		// full then drop the first particle
+		DropParticle(0);
+		// The chosen particle has be removed
+		if(CurrentIdx == 0)
+		{
+			// Reset
+			SetPickedParticle(0, true);
+		}
+		else
+		{
+			PickPreviousParticle();
+		}
+	}
+	ARaphaelParticle* Particle = PayLoads.Last().Particle;
+	if(Particle)
+	{
+		// unbind
+		Particle->OnTranslateFinish.RemoveAll(this);
+	}
+}
+
 void UPayLoadComponent::DropParticle(int DropId)
 {
 	if(DropId >= PayLoads.Num())
@@ -47,8 +77,8 @@ void UPayLoadComponent::DropParticle(int DropId)
 
 	if(Particle)
 	{
+		Particle->SetChosenReaction(false);
 		Particle->DropItself();
-		Particle->OnTranslateFinish.RemoveAll(this);
 	}
 	
 	// No matter valid or not, remove the id info
@@ -130,6 +160,32 @@ void UPayLoadComponent::UpdateParticles()
 	}
 }
 
+void UPayLoadComponent::SetPickedParticle(int Index, bool ReSet)
+{
+	// No particle loaded
+	if(PayLoads.Num() == 0)
+	{
+		return ;
+	}
+	// Invalid Index
+	if(Index < 0 || Index >= PayLoads.Num())
+	{
+		return ;
+	}
+	// Already set and don't need to reset
+	if(!ReSet && Index == CurrentIdx)
+	{
+		return ;
+	}
+	// maybe need to adjust
+	if(CurrentIdx >= 0 && CurrentIdx < PayLoads.Num())
+	{
+		PayLoads[CurrentIdx].Particle->SetChosenReaction(false);
+	}
+	CurrentIdx = Index;
+	PayLoads[CurrentIdx].Particle->SetChosenReaction(true);
+}
+
 
 // Called every frame
 void UPayLoadComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -156,16 +212,36 @@ void UPayLoadComponent::LoadParticle(ARaphaelParticle* Particle)
 		
 		// Update to target position
 		Particle->UpdatePosition(PayLoads.Last().Position, ComponentLastPosition);
-
-		if(PayLoads.Num() > MaxParticleNum)
-		{
-			// Bind delegate if full
-			Particle->OnTranslateFinish.AddDynamic(this, &UPayLoadComponent::DropParticle);
-		}
+		
+		// Bind finish delegate
+		Particle->OnTranslateFinish.AddDynamic(this, &UPayLoadComponent::ParticleLoadFinish);
 
 		// Lerp particle to position
 		Particle->ApplyCurveToPosition();
-		
+	}
+}
+
+void UPayLoadComponent::PickNextParticle()
+{
+	if(CurrentIdx == PayLoads.Num() - 1)
+	{
+		SetPickedParticle(0, false);
+	}
+	else
+	{
+		SetPickedParticle(CurrentIdx + 1, false);
+	}
+}
+
+void UPayLoadComponent::PickPreviousParticle()
+{
+	if(CurrentIdx == 0)
+	{
+		SetPickedParticle(PayLoads.Num() - 1, false);
+	}
+	else
+	{
+		SetPickedParticle(CurrentIdx - 1, false);
 	}
 }
 

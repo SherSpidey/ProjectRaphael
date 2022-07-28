@@ -47,6 +47,8 @@ private:
 
 
 protected:
+	// The current chosen particle
+	int CurrentIdx;
 	
 	// The particle idle position, update every frame
 	UPROPERTY(BlueprintReadWrite)
@@ -70,16 +72,25 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Call when particle load finish
+	UFUNCTION(BlueprintCallable)
+	void ParticleLoadFinish();
+
 	// Drop particle after load particle with full payload.
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void DropParticle(int DropId);
 
 	// Arrange with new distribution
 	// Called when changing radius and payload num.
+	UFUNCTION(BlueprintCallable, Category="Update")
 	void UpdateDistribution();
 
 	//Control payload particles
+	UFUNCTION(BlueprintCallable, Category="Update")
 	void UpdateParticles();
+
+	UFUNCTION(BlueprintCallable, Category="Update")
+	void SetPickedParticle(int Index, bool ReSet);
 
 public:	
 	// Called every frame
@@ -90,6 +101,19 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadParticle(ARaphaelParticle* Particle);
+
+	UFUNCTION(BlueprintCallable, Category="Update")
+	void PickNextParticle();
+
+	UFUNCTION(BlueprintCallable, Category="Update")
+	void PickPreviousParticle();
+
+	UFUNCTION(BlueprintCallable, Category="Update")
+	ARaphaelParticle* GetCurrentParticle() { return PayLoads[CurrentIdx].Particle; };
+
+	FORCEINLINE void SetMaxNum(int Num) { MaxParticleNum = Num; }
+
+	FORCEINLINE void SetPayloadRadius(float Radius) { PayLoadRadius = Radius; }
 
 		
 };

@@ -140,9 +140,35 @@ void ABaseCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Locatio
 	StopJumping();
 }
 
+void ABaseCharacter::InteractSpecialCheck()
+{
+	if(ChosenParticle != nullptr)
+	{
+		const EParticleType ParticleType = ChosenParticle->GetParticleType();
+		if(ParticleType == EParticleType::EPT_Black)
+		{
+			bShouldTraceForItems = true;
+		}
+		else
+		{
+			// resume normal
+			UpdateInteractNum(0);
+		}
+	}
+}
+
+void ABaseCharacter::OnUsedParticleDestroyed()
+{
+	if(UsedParticle)
+	{
+		UsedParticle->OnParticleDeath.RemoveAll(this);
+	}
+	UsedParticle = nullptr;
+}
+
 void ABaseCharacter::UpdateStateProperties()
 {
-	
+	// do nothing
 }
 
 void ABaseCharacter::StopJump_Implementation()
@@ -194,6 +220,12 @@ void ABaseCharacter::Climb_Implementation()
 	}
 }
 
+void ABaseCharacter::SetChosenParticle(ARaphaelParticle* Particle)
+{
+	ChosenParticle = Particle;
+	InteractSpecialCheck();
+}
+
 void ABaseCharacter::UpdateInteractNum(int Amount)
 {
 	if(OverlappedParticleCount + Amount <= 0)
@@ -205,6 +237,11 @@ void ABaseCharacter::UpdateInteractNum(int Amount)
 	{
 		OverlappedParticleCount += Amount;
 		bShouldTraceForItems = true;
+	}
+	if(Amount != 0)
+	{
+		// Update Special condition
+		InteractSpecialCheck();
 	}
 }
 
@@ -295,6 +332,7 @@ void ABaseCharacter::TraceForItem()
 				}
 			}
 		}
+		return ;
 	}
 	else if(TraceHitLastItem)
 	{
@@ -308,7 +346,9 @@ void ABaseCharacter::TraceForItem()
 		{
 			LastItemInterface->Execute_SetInteractReaction(TraceHitItem, false);
 		}
+		TraceHitLastItem = nullptr;
 	}
+	TraceHitItem = nullptr;
 }
 
 void ABaseCharacter::InteractWithItem_Implementation()
@@ -318,7 +358,8 @@ void ABaseCharacter::InteractWithItem_Implementation()
 		ARaphaelParticle* Particle = Cast<ARaphaelParticle>(TraceHitItem);
 		if(Particle)
 		{
-			if(PayloadComponent)
+			const float Distance = (GetActorLocation() - Particle->GetActorLocation()).Size();
+			if(Distance <= Particle->GetLoadMaxDistance() && PayloadComponent)
 			{
 				PayloadComponent->LoadParticle(Particle);
 			}
@@ -345,9 +386,47 @@ void ABaseCharacter::ChosePreviousItem_Implementation()
 
 void ABaseCharacter::UseChosenItem_Implementation()
 {
+	if(UsedParticle == nullptr)
+	{
+		UsedParticle = ChosenParticle;
+		// Bind to remove particle
+		if(UsedParticle)
+		{
+			UsedParticle->OnParticleDeath.AddDynamic(this, &ABaseCharacter::OnUsedParticleDestroyed);
+		}
+		if(PayloadComponent)
+		{
+			PayloadComponent->ActiveCurrentParticle();
+		}
+	}
+	if(UsedParticle)
+	{
+		UsedParticle->ParticleActive();
+	}
+	
+}
+
+void ABaseCharacter::ChosenItemHold_Implementation()
+{
+	if(UsedParticle)
+	{
+		UsedParticle->ParticleSetFunctionEnable(true);
+	}
+}
+
+void ABaseCharacter::ChosenItemRelease_Implementation()
+{
+	if(UsedParticle)
+	{
+		UsedParticle->ParticleSetFunctionEnable(false);
+	}
+}
+
+void ABaseCharacter::DropChosenItem_Implementation()
+{
 	if(PayloadComponent)
 	{
-		PayloadComponent->ActiveCurrentParticle();
+		PayloadComponent->DropCurrentParticle();
 	}
 }
 
@@ -397,6 +476,11 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("ItemPrevious", IE_Pressed, this, &ABaseCharacter::ChosePreviousItem);
 
 	PlayerInputComponent->BindAction("UseItem", IE_Pressed, this, &ABaseCharacter::UseChosenItem);
+
+	PlayerInputComponent->BindAction("ItemHold", IE_Pressed, this, &ABaseCharacter::ChosenItemHold);
+	PlayerInputComponent->BindAction("ItemRelease", IE_Pressed, this, &ABaseCharacter::ChosenItemRelease);
+
+	PlayerInputComponent->BindAction("DropItem", IE_Pressed, this, &ABaseCharacter::DropChosenItem);
 
 }
 

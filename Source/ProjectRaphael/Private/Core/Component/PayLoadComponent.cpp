@@ -3,6 +3,7 @@
 
 #include "Core/Component/PayLoadComponent.h"
 
+#include "Character/BaseCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "RParticle/RaphaelParticle.h"
 
@@ -185,6 +186,20 @@ void UPayLoadComponent::SetPickedParticle(int Index, bool ReSet)
 	}
 	CurrentIdx = Index;
 	PayLoads[CurrentIdx].Particle->SetChosenReaction(true);
+	UpdateOwnerParticle(PayLoads[CurrentIdx].Particle);
+}
+
+void UPayLoadComponent::UpdateOwnerParticle(ARaphaelParticle* Particle) const
+{
+	AActor* PlayerActor = GetOwner();
+	if(PlayerActor != nullptr)
+	{
+		ABaseCharacter* PlayerCharacter = Cast<ABaseCharacter>(PlayerActor);
+		if(PlayerCharacter != nullptr)
+		{
+			PlayerCharacter->SetChosenParticle(Particle);
+		}
+	}
 }
 
 
@@ -206,6 +221,10 @@ void UPayLoadComponent::LoadParticle(ARaphaelParticle* Particle)
 		AddedParticleInfo.Particle = Particle;
 		AddedParticleInfo.Position = FVector::ZeroVector;
 		PayLoads.Add(AddedParticleInfo);
+		if(PayLoads.Num() == 1)
+		{
+			CurrentIdx = 0;
+		}
 		
 
 		// Update New Position
@@ -258,14 +277,35 @@ void UPayLoadComponent::ActiveCurrentParticle()
 	{
 		// unbind
 		Particle->OnTranslateFinish.RemoveAll(this);
-		Particle->SetOwnerPayloadComponent(nullptr);
-		Particle->ParticleActive();
+		//Particle->SetOwnerPayloadComponent(nullptr);
+		 
 	}
 	PayLoads.RemoveAt(CurrentIdx);
 	if(PayLoads.Num() != 0)
 	{
 		UpdateDistribution();
 		PickPreviousParticle();
+	}
+	else
+	{
+		UpdateOwnerParticle(nullptr);
+	}
+}
+
+void UPayLoadComponent::DropCurrentParticle()
+{
+	if(PayLoads.Num() == 0 || CurrentIdx < 0 || CurrentIdx >= PayLoads.Num())
+	{
+		return ;
+	}
+	DropParticle(CurrentIdx);
+	if(PayLoads.Num() != 0)
+	{
+		PickPreviousParticle();
+	}
+	else
+	{
+		UpdateOwnerParticle(nullptr);
 	}
 }
 

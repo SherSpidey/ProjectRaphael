@@ -11,6 +11,7 @@
 
 // Sets default values
 ARaphaelParticle::ARaphaelParticle():
+LoadMaxDistance(490.f),
 TranslateStepTime(0.001),
 FollowPayloadSpeed(6.f)
 {
@@ -22,6 +23,7 @@ FollowPayloadSpeed(6.f)
 
 	ActionArea = CreateDefaultSubobject<USphereComponent>(TEXT("ActionArea"));
 	ActionArea->SetupAttachment(ParticleMesh);
+	ActionArea->SetSphereRadius(60.f);
 	
 	ActionArea->SetCollisionResponseToChannels(ECR_Ignore);
 	ActionArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -108,6 +110,11 @@ void ARaphaelParticle::Tick(float DeltaTime)
 void ARaphaelParticle::SetChosenReaction(bool Enable)
 {
 	ParticleMesh->SetRenderCustomDepth(Enable);
+}
+
+void ARaphaelParticle::ParticleSetFunctionEnable_Implementation(bool Enabled)
+{
+	// override in child class
 }
 
 void ARaphaelParticle::ParticleActive_Implementation()

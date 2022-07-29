@@ -92,6 +92,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Update")
 	void SetPickedParticle(int Index, bool ReSet);
 
+	void UpdateOwnerParticle(ARaphaelParticle* Particle) const;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -110,6 +112,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Update")
 	void ActiveCurrentParticle();
+
+	UFUNCTION(BlueprintCallable, Category="Update")
+	void DropCurrentParticle();
 
 	UFUNCTION(BlueprintCallable, Category="Update")
 	ARaphaelParticle* GetCurrentParticle() { return PayLoads[CurrentIdx].Particle; };

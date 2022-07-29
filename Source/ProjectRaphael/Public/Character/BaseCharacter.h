@@ -14,7 +14,7 @@ enum class ECharacterState: uint8
 	ECS_Run UMETA(DisplayName = "Run"),
 	ECS_Sprint UMETA(DisplayName = "Sprint"),
 	
-	EPS_MAX UMETA(DisplayName = "Default")
+	ECS_MAX UMETA(DisplayName = "Default")
 };
 
 UCLASS()
@@ -53,6 +53,12 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category=Interact, meta = (AllowPrivateAccess = "true"))
 	AActor* TraceHitLastItem;
+
+	UPROPERTY(BlueprintReadOnly, Category=Interact, meta = (AllowPrivateAccess = "true"))
+	class ARaphaelParticle* ChosenParticle;
+
+	UPROPERTY(BlueprintReadOnly, Category=Interact, meta = (AllowPrivateAccess = "true"))
+	ARaphaelParticle* UsedParticle;
 	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -105,6 +111,11 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	void InteractSpecialCheck();
+
+	UFUNCTION()
+	void OnUsedParticleDestroyed();
+
 	UFUNCTION(BlueprintCallable, Category=State)
 	void UpdateStateProperties();
 
@@ -144,6 +155,18 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
 	void UseChosenItem();
 
+	// When player chose a items, drop it
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
+	void DropChosenItem();
+
+	// When player chose a items, hold
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
+	void ChosenItemHold();
+
+	// When player use a items, release
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
+	void ChosenItemRelease();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -159,6 +182,9 @@ public:
 	FORCEINLINE ECharacterState GetCharacterState() const {	return CharacterState; }
 
 	FORCEINLINE void SetMovementEnable(bool Enable) { bLockMovement = !Enable; }
+
+	UFUNCTION(BlueprintCallable, Category=Interact)
+	void SetChosenParticle(ARaphaelParticle* Particle);
 
 	UFUNCTION(BlueprintCallable, Category=Interact)
 	void UpdateInteractNum(int Amount);

@@ -9,6 +9,19 @@
 #include "RaphaelParticle.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleTerpFinish);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleDeath);
+
+UENUM(BlueprintType)
+enum class EParticleType: uint8
+{
+	EPT_Black UMETA(DisplayName = "Black"),
+	EPT_White UMETA(DisplayName = "White"),
+	EPT_Green UMETA(DisplayName = "Green"),
+	EPT_Blue UMETA(DisplayName = "Blue"),
+	EPT_Red UMETA(DisplayName = "Red"),
+	
+	EPT_MAX UMETA(DisplayName = "Default")
+};
 
 UCLASS()
 class PROJECTRAPHAEL_API ARaphaelParticle : public AActor, public IInteractInterface
@@ -45,9 +58,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle TranslateTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
+	float LoadMaxDistance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Setting)
+	EParticleType ParticleType;
+
 public:
 
 	FOnParticleTerpFinish OnTranslateFinish;
+
+	FOnParticleDeath OnParticleDeath;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
 	float TranslateStepTime;
@@ -97,6 +118,10 @@ public:
 
 	FORCEINLINE void SetOwnerPayloadComponent(UPayLoadComponent* OwnerPayload) { PayLoadComponent = OwnerPayload;}
 
+	FORCEINLINE EParticleType GetParticleType() const { return ParticleType;}
+
+	FORCEINLINE float GetLoadMaxDistance() const { return LoadMaxDistance;}
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DropItself();
 
@@ -108,6 +133,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void ParticleActive();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
+	void ParticleSetFunctionEnable(bool Enabled);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Show)
 	void SetInteractReaction(bool bShow);

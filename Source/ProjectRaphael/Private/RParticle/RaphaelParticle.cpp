@@ -96,6 +96,17 @@ void ARaphaelParticle::OnSphereEndOverlap_Implementation(UPrimitiveComponent* Ov
 	}
 }
 
+// Need to override in child class
+void ARaphaelParticle::ParticleDeath_Implementation()
+{
+	Destroy();
+}
+
+void ARaphaelParticle::OnParticlePendingKill_Implementation()
+{
+	OnParticleDeath.Broadcast();
+}
+
 // Called every frame
 void ARaphaelParticle::Tick(float DeltaTime)
 {

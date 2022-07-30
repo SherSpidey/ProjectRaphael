@@ -6,6 +6,17 @@
 #include "RParticle/RaphaelParticle.h"
 #include "RaphaelParticleBlack.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EBlackParticleState: uint8
+{
+	EPS_Idle UMETA(DisplayName = "Idle"),
+	EPS_Moving UMETA(DisplayName = "Moving"),
+	EPS_Control UMETA(DisplayName = "Control"),
+	
+	EPS_MAX UMETA(DisplayName = "Default")
+};
+
 /**
  * 
  */
@@ -15,22 +26,38 @@ class PROJECTRAPHAEL_API ARaphaelParticleBlack : public ARaphaelParticle
 	GENERATED_BODY()
 
 	ARaphaelParticleBlack();
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float ControlDistance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float ControlPressDistance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	float PressForceScale;
 	
 protected:
+	UPROPERTY(BlueprintReadWrite, Category="Setting")
+	float CurrentDistance;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
 	class UNiagaraComponent* ControlParticle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
+	class UPhysicsHandleComponent* ControlHandle;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Function")
 	AActor* TargetActor;
+
+	UPROPERTY(BlueprintReadWrite, Category="Function")
+	class ABaseCharacter* PlayerCharacter;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Function")
 	FVector StartPosition;
 
 	UPROPERTY(BlueprintReadWrite, Category="Function")
-	bool bIsFunctional;
-
-	UPROPERTY(BlueprintReadWrite, Category="Function")
-	bool bControlled;
+	EBlackParticleState ParticleState;
 
 	UPROPERTY(BlueprintReadWrite, Category="Function")
 	FVector InterpSpeed;
@@ -46,16 +73,18 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
 	void ControlParticleInit();
-	
-	
-	// Override to achieve functional uses
-	virtual void OnSphereBeginOverlap_Implementation(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepHitResult) override;
+
+	UFUNCTION(BlueprintCallable, Category="Function")
+	void ControlTarget();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category="Function")
+	void ControlParticleDeath();
+
+	UFUNCTION(BlueprintCallable, Category="Function")
+	void OnControlParticleDeathFinish();
+
+	UFUNCTION(BlueprintCallable, Category="Function")
+	void ApplyPressForce();
 
 public:
 	virtual void ParticleActive_Implementation() override;

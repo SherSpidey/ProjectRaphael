@@ -478,7 +478,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("UseItem", IE_Pressed, this, &ABaseCharacter::UseChosenItem);
 
 	PlayerInputComponent->BindAction("ItemHold", IE_Pressed, this, &ABaseCharacter::ChosenItemHold);
-	PlayerInputComponent->BindAction("ItemRelease", IE_Pressed, this, &ABaseCharacter::ChosenItemRelease);
+	PlayerInputComponent->BindAction("ItemRelease", IE_Released, this, &ABaseCharacter::ChosenItemRelease);
 
 	PlayerInputComponent->BindAction("DropItem", IE_Pressed, this, &ABaseCharacter::DropChosenItem);
 

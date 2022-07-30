@@ -109,6 +109,12 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
+	void OnParticlePendingKill();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
+	void ParticleDeath();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

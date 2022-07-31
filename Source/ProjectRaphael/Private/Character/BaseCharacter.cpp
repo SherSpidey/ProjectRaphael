@@ -21,7 +21,8 @@ RunningSpeed(400),
 SprintSpeed(600),
 bLockMovement(false),
 OverlappedParticleCount(0),
-bShouldTraceForItems(false)
+bShouldTraceForItems(false),
+bUsedParticleActivated(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -157,6 +158,20 @@ void ABaseCharacter::InteractSpecialCheck()
 	}
 }
 
+void ABaseCharacter::OnUsedParticleActive()
+{
+	if(UsedParticle && PayloadComponent)
+	{
+		bUsedParticleActivated = true;
+		UsedParticle->OnParticleActive.RemoveAll(this);
+		PayloadComponent->ActiveCurrentParticle();
+		if(UsedParticle->GetParticleType() == EParticleType::EPT_Black)
+		{
+			CharacterFunction = ECharacterFunction::ECF_Control;
+		}
+	}
+}
+
 void ABaseCharacter::OnUsedParticleDestroyed()
 {
 	if(UsedParticle)
@@ -164,6 +179,8 @@ void ABaseCharacter::OnUsedParticleDestroyed()
 		UsedParticle->OnParticleDeath.RemoveAll(this);
 	}
 	UsedParticle = nullptr;
+	bUsedParticleActivated = false;
+	CharacterFunction = ECharacterFunction::ECF_Idle;
 }
 
 void ABaseCharacter::UpdateStateProperties()
@@ -218,6 +235,11 @@ void ABaseCharacter::Climb_Implementation()
 	{
 		ClimbComponent->Climb();
 	}
+}
+
+FRotator ABaseCharacter::GetFollowCameraRotation() const
+{
+	return FollowCamera->GetComponentRotation();
 }
 
 void ABaseCharacter::SetChosenParticle(ARaphaelParticle* Particle)
@@ -392,11 +414,8 @@ void ABaseCharacter::UseChosenItem_Implementation()
 		// Bind to remove particle
 		if(UsedParticle)
 		{
+			UsedParticle->OnParticleActive.AddDynamic(this, &ABaseCharacter::OnUsedParticleActive);
 			UsedParticle->OnParticleDeath.AddDynamic(this, &ABaseCharacter::OnUsedParticleDestroyed);
-		}
-		if(PayloadComponent)
-		{
-			PayloadComponent->ActiveCurrentParticle();
 		}
 	}
 	if(UsedParticle)

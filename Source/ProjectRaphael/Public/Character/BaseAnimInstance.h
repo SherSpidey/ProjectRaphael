@@ -31,6 +31,10 @@ private:
 		meta=(AllowPrivateAccess = "ture"))
 	ECharacterState CharacterState;
 
+	UPROPERTY(BlueprintReadOnly, Category=Function,
+		meta=(AllowPrivateAccess = "ture"))
+	ECharacterFunction CharacterFunction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement,
 		meta=(AllowPrivateAccess = "ture"))
 	float Speed;
@@ -42,6 +46,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement,
 		meta=(AllowPrivateAccess = "true"))
 	bool bIsAccelerating;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement,
+		meta=(AllowPrivateAccess = "true"))
+	FRotator CameraDeltaRotation;
 
 	// Character Yaw this frame
 	FRotator CharacterRotation;

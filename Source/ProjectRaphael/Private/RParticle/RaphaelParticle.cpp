@@ -5,6 +5,7 @@
 
 #include "Character/BaseCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Core/Component/PayLoadComponent.h"
 #include "Curves/CurveVector.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -28,7 +29,10 @@ FollowPayloadSpeed(6.f)
 	ActionArea->SetCollisionResponseToChannels(ECR_Ignore);
 	ActionArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	ParticleMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	ParticleMesh->SetCollisionResponseToChannels(ECR_Ignore);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 
 }
 
@@ -70,15 +74,27 @@ void ARaphaelParticle::TranslateUpdate()
 	//UKismetSystemLibrary::DrawDebugSphere(this , GetActorLocation(), 10, 12, FLinearColor::Red, 20, 1);
 }
 
+void ARaphaelParticle::GetPlayerCharacter()
+{
+	if(PayLoadComponent)
+	{
+		AActor* PlayerActor = PayLoadComponent->GetOwner();
+		if(PlayerActor != nullptr)
+		{
+			PlayerCharacter = Cast<ABaseCharacter>(PlayerActor);
+		}
+	}
+}
+
 void ARaphaelParticle::OnSphereBeginOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
+                                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
 	if(OtherActor)
 	{
-		ABaseCharacter* PlayerCharacter = Cast<ABaseCharacter>(OtherActor);
-		if(PlayerCharacter)
+		ABaseCharacter* TempPlayerCharacter = Cast<ABaseCharacter>(OtherActor);
+		if(TempPlayerCharacter)
 		{
-			PlayerCharacter->UpdateInteractNum(1);
+			TempPlayerCharacter->UpdateInteractNum(1);
 		}
 	}
 }
@@ -88,10 +104,10 @@ void ARaphaelParticle::OnSphereEndOverlap_Implementation(UPrimitiveComponent* Ov
 {
 	if(OtherActor)
 	{
-		ABaseCharacter* PlayerCharacter = Cast<ABaseCharacter>(OtherActor);
-		if(PlayerCharacter)
+		ABaseCharacter* TempPlayerCharacter = Cast<ABaseCharacter>(OtherActor);
+		if(TempPlayerCharacter)
 		{
-			PlayerCharacter->UpdateInteractNum(-1);
+			TempPlayerCharacter->UpdateInteractNum(-1);
 		}
 	}
 }
@@ -105,6 +121,11 @@ void ARaphaelParticle::ParticleDeath_Implementation()
 void ARaphaelParticle::OnParticlePendingKill_Implementation()
 {
 	OnParticleDeath.Broadcast();
+}
+
+void ARaphaelParticle::OnParticlePendingActive_Implementation()
+{
+	OnParticleActive.Broadcast();
 }
 
 // Called every frame
@@ -165,11 +186,13 @@ void ARaphaelParticle::ApplyCurveToPosition_Implementation()
 		TranslationCurve = LoadCurve;
 		TranslatePlayBackTime = 0.f;
 		TranslateStartPosition = GetActorLocation();
+
+		// change mesh setting
+		ParticleMesh->SetSimulatePhysics(false);
+		ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+		
 		World->GetTimerManager().SetTimer(TranslateTimerHandle, this, &ARaphaelParticle::TranslateUpdate, TranslateStepTime, true);
 		//GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Red, FString::Printf(TEXT("Load, %f"), TranslateDuration));
 	}
-	// change mesh setting
-	ParticleMesh->SetSimulatePhysics(false);
-	ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
 }
 

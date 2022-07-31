@@ -40,13 +40,13 @@ void ARaphaelParticleBlack::GetTargetActor()
 {
 	if(PayLoadComponent)
 	{
-		AActor* PlayerActor = PayLoadComponent->GetOwner();
-		if(PlayerActor != nullptr)
+		GetPlayerCharacter();
+		if(PlayerCharacter != nullptr)
 		{
-			PlayerCharacter = Cast<ABaseCharacter>(PlayerActor);
-			if(PlayerCharacter != nullptr)
+			AActor* TraceActor = PlayerCharacter->TraceForObjectOnce();
+			if(TraceActor->ActorHasTag(FName("Controllable")))
 			{
-				TargetActor = PlayerCharacter->TraceForObjectOnce();
+				TargetActor = TraceActor;
 			}
 		}
 	}

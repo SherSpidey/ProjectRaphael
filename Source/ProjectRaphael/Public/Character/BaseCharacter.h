@@ -17,6 +17,15 @@ enum class ECharacterState: uint8
 	ECS_MAX UMETA(DisplayName = "Default")
 };
 
+UENUM(BlueprintType)
+enum class ECharacterFunction: uint8
+{
+	ECF_Idle UMETA(DisplayName = "Idle"),
+	ECF_Control UMETA(DisplayName = "Control"),
+	
+	ECF_MAX UMETA(DisplayName = "Default")
+};
+
 UCLASS()
 class PROJECTRAPHAEL_API ABaseCharacter : public ACharacter
 {
@@ -48,6 +57,8 @@ private:
 
 	bool bShouldTraceForItems;
 
+	bool bUsedParticleActivated;
+
 	UPROPERTY(BlueprintReadOnly, Category=Interact, meta = (AllowPrivateAccess = "true"))
 	AActor* TraceHitItem;
 
@@ -77,6 +88,9 @@ private:
 	
 	UPROPERTY(BlueprintReadWrite, Category="State", meta = (AllowPrivateAccess = "true"))
 	ECharacterState CharacterState;
+
+	UPROPERTY(BlueprintReadWrite, Category="State", meta = (AllowPrivateAccess = "true"))
+	ECharacterFunction CharacterFunction;
 
 public:
 	// Sets default values for this character's properties
@@ -113,6 +127,9 @@ protected:
 
 	void InteractSpecialCheck();
 
+	UFUNCTION()
+	void OnUsedParticleActive();
+	
 	UFUNCTION()
 	void OnUsedParticleDestroyed();
 
@@ -181,7 +198,11 @@ public:
 
 	FORCEINLINE ECharacterState GetCharacterState() const {	return CharacterState; }
 
+	FORCEINLINE ECharacterFunction GetCharacterFunction() const {	return CharacterFunction; }
+
 	FORCEINLINE void SetMovementEnable(bool Enable) { bLockMovement = !Enable; }
+
+	FRotator GetFollowCameraRotation() const;
 
 	UFUNCTION(BlueprintCallable, Category=Interact)
 	void SetChosenParticle(ARaphaelParticle* Particle);

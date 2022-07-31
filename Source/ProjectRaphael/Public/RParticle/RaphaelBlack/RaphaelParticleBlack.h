@@ -49,9 +49,6 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite, Category="Function")
 	AActor* TargetActor;
-
-	UPROPERTY(BlueprintReadWrite, Category="Function")
-	class ABaseCharacter* PlayerCharacter;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Function")
 	FVector StartPosition;

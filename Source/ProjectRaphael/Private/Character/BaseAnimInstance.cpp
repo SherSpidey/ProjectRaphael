@@ -23,6 +23,9 @@ void UBaseAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 	// Update state
 	CharacterState = OwnerCharacter->GetCharacterState();
+	CharacterFunction = OwnerCharacter->GetCharacterFunction();
+	
+	CameraDeltaRotation = OwnerCharacter->GetFollowCameraRotation() - OwnerCharacter->GetActorRotation();
 	
 	const FVector Velocity = OwnerCharacter->GetVelocity();
 	Speed = FVector(Velocity.X, Velocity.Y, 0).Size();
@@ -48,15 +51,6 @@ void UBaseAnimInstance::Lean(float DeltaTime)
 	const float Interp {FMath::FInterpTo(YawDelta, Target, DeltaTime, 1.f)};
 
 	YawDelta = FMath::Clamp(Interp, - 1.f, 1.f);
-	// if(GEngine)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(
-	// 			2,
-	// 			-1,
-	// 			FColor::Cyan,
-	// 			FString::Printf(TEXT("YawDelta: %f"), Delta.Yaw)
-	// 			);
-	// }
 }
 
 void UBaseAnimInstance::TryGetCharacter()

@@ -5,11 +5,11 @@
 
 #include "CoreMinimal.h"
 #include "Core/Interface/InteractInterface.h"
-#include "GameFramework/Actor.h"
 #include "RaphaelParticle.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleTerpFinish);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleDeath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParticleActive);
 
 UENUM(BlueprintType)
 enum class EParticleType: uint8
@@ -39,11 +39,11 @@ protected:
 
 	FVector TranslateStartPosition;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	class UPayLoadComponent* PayLoadComponent;
 
 	// Curve used to translate
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UCurveVector* TranslationCurve;
 	
 	UPROPERTY(BlueprintReadWrite)
@@ -64,11 +64,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Setting)
 	EParticleType ParticleType;
 
+	UPROPERTY(BlueprintReadWrite, Category="Function")
+	class ABaseCharacter* PlayerCharacter;
+
 public:
 
 	FOnParticleTerpFinish OnTranslateFinish;
 
 	FOnParticleDeath OnParticleDeath;
+	
+	FOnParticleActive OnParticleActive;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Setting")
 	float TranslateStepTime;
@@ -92,6 +97,8 @@ protected:
 
 	void TranslateUpdate();
 
+	void GetPlayerCharacter();
+
 	// Interact
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnSphereBeginOverlap(
@@ -111,6 +118,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
 	void OnParticlePendingKill();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
+	void OnParticlePendingActive();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Function")
 	void ParticleDeath();

@@ -15,6 +15,7 @@ UENUM(BlueprintType)
 enum class EParticleType: uint8
 {
 	EPT_Black UMETA(DisplayName = "Black"),
+	EPT_Silver UMETA(DisplayName = "Silver"),
 	EPT_White UMETA(DisplayName = "White"),
 	EPT_Green UMETA(DisplayName = "Green"),
 	EPT_Blue UMETA(DisplayName = "Blue"),
@@ -41,7 +42,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	class UPayLoadComponent* PayLoadComponent;
-
+	
 	// Curve used to translate
 	UPROPERTY(BlueprintReadOnly)
 	class UCurveVector* TranslationCurve;
@@ -57,6 +58,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle TranslateTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
+	float ParticleRadius;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Setting")
 	float LoadMaxDistance;
@@ -97,6 +101,7 @@ protected:
 
 	void TranslateUpdate();
 
+	UFUNCTION(BlueprintCallable,Category=Function)
 	void GetPlayerCharacter();
 
 	// Interact

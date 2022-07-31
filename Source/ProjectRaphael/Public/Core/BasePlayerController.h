@@ -26,6 +26,9 @@ protected:
 public:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetHUDVisibility(bool Enable);
+
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void SetCrossHairDynamic(float Scale);
 	

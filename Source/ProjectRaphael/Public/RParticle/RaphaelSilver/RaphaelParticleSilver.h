@@ -17,6 +17,17 @@ class PROJECTRAPHAEL_API ARaphaelParticleSilver : public ARaphaelParticle
 	ARaphaelParticleSilver();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Movement)
+	float JumpInitPower;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Movement)
+	float JumpMaxPower;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Movement)
+	float MovingForce;
+
+	UPROPERTY(BlueprintReadWrite, Category=Movement)
+	float JumpPower;
 
 	UPROPERTY(BlueprintReadWrite, Category=Function)
 	class ABasePlayerController* PlayerController;
@@ -24,10 +35,19 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category=Function)
 	class ARaphaelParticlePawn* ControllerPawn;
 
-	UFUNCTION(BlueprintCallable, Category=Function)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void BackToPlayer();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Movement)
+	void JumpHold();
 
 public:
 	virtual void ParticleActive_Implementation() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Movement)
+	void Rolling(FVector Direction, float Scale);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Movement)
+	void Jump(FVector Direction);
 	
 };

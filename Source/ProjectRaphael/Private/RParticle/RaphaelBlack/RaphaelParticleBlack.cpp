@@ -44,7 +44,7 @@ void ARaphaelParticleBlack::GetTargetActor()
 		if(PlayerCharacter != nullptr)
 		{
 			AActor* TraceActor = PlayerCharacter->TraceForObjectOnce();
-			if(TraceActor->ActorHasTag(FName("Controllable")))
+			if(TraceActor && TraceActor->ActorHasTag(FName("Controllable")))
 			{
 				TargetActor = TraceActor;
 			}

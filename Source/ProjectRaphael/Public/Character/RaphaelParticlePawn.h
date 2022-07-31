@@ -20,7 +20,13 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	USceneComponent* RootScene;
+	USceneComponent* CameraRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	class UCameraComponent* Camera;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,6 +50,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Set Controlled Particle
-	FORCEINLINE void SetControlParticle(ARaphaelParticle* Particle) { ControlledParticle = Particle; }
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Setting)
+	void SetControlParticle(ARaphaelParticle* Particle);
 
 };

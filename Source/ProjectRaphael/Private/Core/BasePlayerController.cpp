@@ -17,3 +17,15 @@ void ABasePlayerController::BeginPlay()
 		HUD->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+void ABasePlayerController::SetHUDVisibility(bool Enable)
+{
+	if(Enable)
+	{
+		HUD->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		HUD->SetVisibility(ESlateVisibility::Hidden);
+	}
+}

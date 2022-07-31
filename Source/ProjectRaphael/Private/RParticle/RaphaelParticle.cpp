@@ -12,6 +12,7 @@
 
 // Sets default values
 ARaphaelParticle::ARaphaelParticle():
+ParticleRadius(8.f),
 LoadMaxDistance(490.f),
 TranslateStepTime(0.001),
 FollowPayloadSpeed(6.f)
@@ -22,9 +23,13 @@ FollowPayloadSpeed(6.f)
 	ParticleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ParticleMesh"));
 	SetRootComponent(ParticleMesh);
 
+	ParticleMesh->SetUsingAbsoluteScale(true);
+	ParticleMesh->SetWorldScale3D(FVector(ParticleRadius, ParticleRadius, ParticleRadius));
+	
 	ActionArea = CreateDefaultSubobject<USphereComponent>(TEXT("ActionArea"));
 	ActionArea->SetupAttachment(ParticleMesh);
-	ActionArea->SetSphereRadius(60.f);
+	ActionArea->SetSphereRadius(480.f);
+	ActionArea->SetUsingAbsoluteScale(true);
 	
 	ActionArea->SetCollisionResponseToChannels(ECR_Ignore);
 	ActionArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);

@@ -123,9 +123,15 @@ void ARaphaelParticleBlack::ApplyPressForce()
 // Finished in BP
 void ARaphaelParticleBlack::ParticleActive_Implementation()
 {
-	//Super::ParticleActive_Implementation();
-	bIsLoad = false;
-	SetChosenReaction(false);
+	if(PlayerCharacter == nullptr)
+	{
+		GetPlayerCharacter();
+	}
+	if(PlayerCharacter)
+	{
+		bIsLoad = false;
+		SetChosenReaction(false);
+	}
 }
 
 // Finished in BP

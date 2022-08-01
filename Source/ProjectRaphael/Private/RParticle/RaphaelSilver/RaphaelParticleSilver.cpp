@@ -61,7 +61,7 @@ void ARaphaelParticleSilver::ParticleActive_Implementation()
 				SetChosenReaction(false);
 				ParticleMesh->SetSimulatePhysics(true);
 				const FVector Force = PlayerCharacter->GetFollowCamera()->GetForwardVector() * 100000.f;
-				OnParticleActive.Broadcast();
+				OnParticlePendingActive();
 				ParticleMesh->AddForce(Force, "", true);
 				if(ControllerPawn)
 				{

@@ -173,7 +173,7 @@ void ARaphaelParticle::DropItself_Implementation()
 	bIsLoad = false;
 	// Set back
 	ParticleMesh->SetSimulatePhysics(true);
-	ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
 	ParticleMesh->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 	ActionArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }

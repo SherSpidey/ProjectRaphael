@@ -19,6 +19,9 @@ public:
 	class ARaphaelParticle* ControlledParticle;
 
 private:
+
+	bool bIsFalling;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	USceneComponent* CameraRoot;
 
@@ -31,6 +34,8 @@ private:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void UpdateFalling();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Control)
 	void ReleaseControl();
@@ -48,6 +53,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintCallable, Category=Moving)
+	bool GetIsFalling() const { return bIsFalling; }
 
 	// Set Controlled Particle
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Setting)

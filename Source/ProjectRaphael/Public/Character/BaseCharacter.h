@@ -59,6 +59,9 @@ private:
 
 	bool bUsedParticleActivated;
 
+	UPROPERTY(BlueprintReadOnly, Category=Controller, meta = (AllowPrivateAccess = "true"))
+	AController* AIController;
+
 	UPROPERTY(BlueprintReadOnly, Category=Interact, meta = (AllowPrivateAccess = "true"))
 	AActor* TraceHitItem;
 
@@ -212,5 +215,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category=Interact)
 	AActor* TraceForObjectOnce();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category=Interact)
+	AController* SetAIController();
+
+	UFUNCTION(BlueprintCallable, Category=Interact)
+	AController* GetAIController() { return AIController;}
 
 };

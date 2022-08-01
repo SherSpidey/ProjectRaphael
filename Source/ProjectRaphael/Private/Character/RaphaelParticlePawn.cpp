@@ -8,7 +8,8 @@
 #include "RParticle/RaphaelParticle.h"
 
 // Sets default values
-ARaphaelParticlePawn::ARaphaelParticlePawn()
+ARaphaelParticlePawn::ARaphaelParticlePawn():
+bIsFalling(false)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,6 +29,28 @@ ARaphaelParticlePawn::ARaphaelParticlePawn()
 void ARaphaelParticlePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void ARaphaelParticlePawn::UpdateFalling()
+{
+	const FVector Start { GetActorLocation() };
+	const FVector End {Start + FVector::DownVector * 500.f};
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			Start,
+			End,
+			ECollisionChannel::ECC_Visibility);
+	const FVector ParticleScale = ControlledParticle->GetActorScale();
+	if(HitResult.bBlockingHit && HitResult.Distance <= (ParticleScale.X * 1.1f))
+	{
+		bIsFalling = false;
+	}
+	else
+	{
+		bIsFalling = true;
+	}
 	
 }
 
@@ -56,6 +79,7 @@ void ARaphaelParticlePawn::Tick(float DeltaTime)
 	if(ControlledParticle)
 	{
 		SetActorLocation(ControlledParticle->GetActorLocation());
+		UpdateFalling();
 	}
 
 }

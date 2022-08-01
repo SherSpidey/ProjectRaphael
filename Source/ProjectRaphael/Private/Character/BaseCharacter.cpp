@@ -79,6 +79,8 @@ void ABaseCharacter::BeginPlay()
 	// Custom setting
 	CharacterState = ECharacterState::ECS_Idle;
 	GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+
+	AIController = SetAIController();
 }
 
 void ABaseCharacter::MoveForward(float Value)

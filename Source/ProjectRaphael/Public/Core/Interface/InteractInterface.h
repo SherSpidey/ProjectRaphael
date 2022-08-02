@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/EMagnetPoleType.h"
 #include "UObject/Interface.h"
 #include "InteractInterface.generated.h"
 
@@ -24,4 +25,10 @@ class PROJECTRAPHAEL_API IInteractInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Show)
 	void SetInteractReaction(bool bShow);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	void SetMagnetPoleType(EMagnetPoleType NewPoleType);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	EMagnetPoleType GetMagnetPoleType();
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/Interface/InteractInterface.h"
 #include "GameFramework/Actor.h"
 #include "Magnet.generated.h"
 
@@ -11,13 +12,13 @@ enum class EMagnetType: uint8
 {
 	EMT_Normal UMETA(DisplayName = "Normal"),
 	EMT_Fixed UMETA(DisplayName = "Fixed"),
-	EMT_Platform UMETA(DisplayName = "Platform"),
+	EMT_Floating UMETA(DisplayName = "Floating"),
 	
 	EMT_MAX UMETA(DisplayName = "Default")
 };
 
 UCLASS()
-class PROJECTRAPHAEL_API AMagnet : public AActor
+class PROJECTRAPHAEL_API AMagnet : public AActor, public IInteractInterface 
 {
 	GENERATED_BODY()
 	
@@ -33,10 +34,24 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(AllowPrivateAccess = true))
 	class USphereComponent* AffectionSphere;
 
+protected:
+	
+	UPROPERTY(BlueprintReadWrite, Category=Force)
+	TArray<AActor*> InfluencedActors;
+
+	UPROPERTY(BlueprintReadWrite, Category=Force)
+	float MaxInfluenceDistance;
+
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Setting)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
+	EMagnetPoleType PoleType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
 	EMagnetType MagnetType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
+	float MaxForce;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,9 +59,24 @@ protected:
 
 	void SetMagnetSetting();
 
+	float CalculateForce(const FVector& Start, const FVector& End) const;
+
+	UFUNCTION(BlueprintCallable, Category=Force)
+	void ApplyForce();
+
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UStaticMeshComponent* GetMagnetMesh() const { return MagnetMesh; }
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	void SetMagnetPoleType(EMagnetPoleType NewPoleType);
+	virtual void SetMagnetPoleType_Implementation(EMagnetPoleType NewPoleType) override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	EMagnetPoleType GetMagnetPoleType();
+	virtual EMagnetPoleType GetMagnetPoleType_Implementation() override;
 
 };

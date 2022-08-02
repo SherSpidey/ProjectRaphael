@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/Interface/InteractInterface.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -27,7 +28,7 @@ enum class ECharacterFunction: uint8
 };
 
 UCLASS()
-class PROJECTRAPHAEL_API ABaseCharacter : public ACharacter
+class PROJECTRAPHAEL_API ABaseCharacter : public ACharacter, public IInteractInterface
 {
 	GENERATED_BODY()
 
@@ -49,6 +50,7 @@ public:
 	// Sprint Speed
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Moving)
 	float SprintSpeed;
+	
 
 private:
 	bool bLockMovement;
@@ -94,6 +96,9 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, Category="State", meta = (AllowPrivateAccess = "true"))
 	ECharacterFunction CharacterFunction;
+
+	UPROPERTY(BlueprintReadOnly, Category="Magnet", meta = (AllowPrivateAccess = "true"))
+	EMagnetPoleType PlayerMagnetPoleType;
 
 public:
 	// Sets default values for this character's properties
@@ -222,4 +227,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Interact)
 	AController* GetAIController() { return AIController;}
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	void SetMagnetPoleType(EMagnetPoleType NewPoleType);
+	virtual void SetMagnetPoleType_Implementation(EMagnetPoleType NewPoleType) override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Magnet)
+	EMagnetPoleType GetMagnetPoleType();
+	virtual EMagnetPoleType GetMagnetPoleType_Implementation() override;
 };

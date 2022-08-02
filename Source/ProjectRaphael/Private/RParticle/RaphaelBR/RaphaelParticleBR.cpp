@@ -5,7 +5,7 @@
 
 ARaphaelParticleBR::ARaphaelParticleBR()
 {
-	MagnetType = EBRParticleType::EPT_South;
+	MagnetType = EMagnetPoleType::EMT_South;
 	ParticleType = EParticleType::EPT_BR;
 	ParticleState = EBRParticleState::EPS_Idle;
 	

@@ -68,6 +68,7 @@ bUsedParticleActivated(false)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	PlayerMagnetPoleType = EMagnetPoleType::EMT_Nonmagnetic;
 
 }
 
@@ -276,6 +277,16 @@ AActor* ABaseCharacter::TraceForObjectOnce()
 	TraceForItem();
 	bShouldTraceForItems = bLastShouldTrace;
 	return TraceHitItem;
+}
+
+void ABaseCharacter::SetMagnetPoleType_Implementation(EMagnetPoleType NewPoleType)
+{
+	PlayerMagnetPoleType = NewPoleType;
+}
+
+EMagnetPoleType ABaseCharacter::GetMagnetPoleType_Implementation()
+{
+	return PlayerMagnetPoleType;
 }
 
 bool ABaseCharacter::TraceUnderCrossHairs(FHitResult& OutHitResult, FVector& OutHitLocation)

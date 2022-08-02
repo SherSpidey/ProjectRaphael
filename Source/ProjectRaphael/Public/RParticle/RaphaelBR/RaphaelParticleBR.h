@@ -3,17 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/EMagnetPoleType.h"
 #include "RParticle/RaphaelParticle.h"
 #include "RaphaelParticleBR.generated.h"
-
-UENUM(BlueprintType)
-enum class EBRParticleType: uint8
-{
-	EPT_North UMETA(DisplayName = "North"),
-	EPT_South UMETA(DisplayName = "South"),
-	
-	EPT_MAX UMETA(DisplayName = "Default")
-};
 
 UENUM(BlueprintType)
 enum class EBRParticleState: uint8
@@ -42,7 +34,7 @@ protected:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Setting)
-	EBRParticleType MagnetType; 
+	EMagnetPoleType MagnetType; 
 
 protected:
 	virtual void BeginPlay() override;
@@ -50,6 +42,6 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable, Category=Setting)
-	EBRParticleType GetMagnetType() const { return MagnetType; } 
+	EMagnetPoleType GetMagnetType() const { return MagnetType; } 
 	
 };

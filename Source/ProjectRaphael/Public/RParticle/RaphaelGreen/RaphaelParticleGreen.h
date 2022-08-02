@@ -51,6 +51,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category=Setting)
 	FTimerHandle ShowTrailHandle;
 	
+	UPROPERTY(BlueprintReadWrite, Category=Setting)
+	TArray<class USplineMeshComponent*> SplineMeshes;
+
+	UPROPERTY(BlueprintReadWrite, Category=Setting)
+	FVector InitVelocity;
+
+	UPROPERTY(BlueprintReadWrite, Category=Setting)
+	TArray<AActor*> CapturedActors;
+	
 private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
@@ -66,9 +75,32 @@ protected:
 	UFUNCTION(BlueprintCallable, Category=Function)
 	void SetThrowForce(float Force);
 
+	UFUNCTION(BlueprintCallable, Category=Function)
+	void ClearLastTrail();
+
+	UFUNCTION(BlueprintCallable, Category=Function)
+	void SetTrailPath(TArray<FVector> Positions);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category=Function)
+	USplineMeshComponent* CreateSplineMesh();
+
+	UFUNCTION(BlueprintCallable, Category=Function)
+	void CalculateInitVelocity();
+
+	UFUNCTION(BlueprintCallable, Category=Function)
+	void UnstableCollapse(const FHitResult& ImpactResult);
+
+	UFUNCTION(BlueprintCallable, Category=Function)
+	bool CaptureActor();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
+	void DestroyCapturedActors();
+
 public:
 	
 	virtual void ParticleActive_Implementation() override;
+
+	virtual void ParticleSetFunctionEnable_Implementation(bool Enabled) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void BeginAiming();

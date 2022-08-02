@@ -16,6 +16,10 @@ class PROJECTRAPHAEL_API ARaphaelParticleSilver : public ARaphaelParticle
 	
 	ARaphaelParticleSilver();
 
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Movement)
+	float BreakScale;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Movement)
 	float JumpInitPower;
@@ -35,14 +39,22 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category=Function)
 	class ARaphaelParticlePawn* ControllerPawn;
 
+	UPROPERTY(BlueprintReadWrite, Category=Function)
+	FTimerHandle BreakTimerHandle;
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void BackToPlayer();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Movement)
 	void JumpHold();
 
+	void Break() const;
+
+
 public:
 	virtual void ParticleActive_Implementation() override;
+
+	virtual void ParticleSetFunctionEnable_Implementation(bool Enabled) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Movement)
 	void Rolling(FVector Direction, float Scale);

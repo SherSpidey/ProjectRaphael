@@ -175,6 +175,8 @@ void ARaphaelParticle::DropItself_Implementation()
 	ParticleMesh->SetSimulatePhysics(true);
 	ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
 	ParticleMesh->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	ParticleMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	ActionArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
@@ -195,6 +197,8 @@ void ARaphaelParticle::ApplyCurveToPosition_Implementation()
 		// change mesh setting
 		ParticleMesh->SetSimulatePhysics(false);
 		ParticleMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+		ParticleMesh->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Ignore);
+		ParticleMesh->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Ignore);
 		
 		World->GetTimerManager().SetTimer(TranslateTimerHandle, this, &ARaphaelParticle::TranslateUpdate, TranslateStepTime, true);
 		//GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Red, FString::Printf(TEXT("Load, %f"), TranslateDuration));

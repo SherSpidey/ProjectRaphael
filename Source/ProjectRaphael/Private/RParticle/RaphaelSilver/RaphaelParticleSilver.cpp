@@ -10,6 +10,7 @@
 #include "Core/BasePlayerController.h"
 
 ARaphaelParticleSilver::ARaphaelParticleSilver():
+BreakScale(0.8f),
 JumpInitPower(2000.f),
 JumpMaxPower(4000.f),
 MovingForce(500.f)
@@ -43,6 +44,12 @@ void ARaphaelParticleSilver::JumpHold_Implementation()
 	
 }
 
+void ARaphaelParticleSilver::Break() const
+{
+	const FVector Velocity = ParticleMesh->GetPhysicsLinearVelocity();
+	ParticleMesh->SetPhysicsLinearVelocity(Velocity * BreakScale);
+}
+
 void ARaphaelParticleSilver::ParticleActive_Implementation()
 {
 	if(PlayerCharacter == nullptr)
@@ -60,6 +67,8 @@ void ARaphaelParticleSilver::ParticleActive_Implementation()
 				bIsLoad = false;
 				SetChosenReaction(false);
 				ParticleMesh->SetSimulatePhysics(true);
+				ParticleMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+				ParticleMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 				const FVector Force = PlayerCharacter->GetFollowCamera()->GetForwardVector() * 100000.f;
 				OnParticlePendingActive();
 				ParticleMesh->AddForce(Force, "", true);
@@ -71,6 +80,18 @@ void ARaphaelParticleSilver::ParticleActive_Implementation()
 				}
 			}
 		}
+	}
+}
+
+void ARaphaelParticleSilver::ParticleSetFunctionEnable_Implementation(bool Enabled)
+{
+	if(Enabled)
+	{
+		GetWorldTimerManager().SetTimer(BreakTimerHandle, this, &ARaphaelParticleSilver::Break, 0.1, true);
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(BreakTimerHandle);
 	}
 }
 

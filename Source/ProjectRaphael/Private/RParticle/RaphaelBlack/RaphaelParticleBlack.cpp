@@ -48,6 +48,10 @@ void ARaphaelParticleBlack::GetTargetActor()
 			{
 				TargetActor = TraceActor;
 			}
+			else
+			{
+				TargetActor = nullptr;
+			}
 		}
 	}
 }

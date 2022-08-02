@@ -410,14 +410,14 @@ void ABaseCharacter::ChosePreviousItem_Implementation()
 
 void ABaseCharacter::UseChosenItem_Implementation()
 {
-	if(UsedParticle == nullptr)
+	if(UsedParticle == nullptr || !bUsedParticleActivated)
 	{
 		UsedParticle = ChosenParticle;
 		// Bind to remove particle
 		if(UsedParticle)
 		{
-			UsedParticle->OnParticleActive.AddDynamic(this, &ABaseCharacter::OnUsedParticleActive);
-			UsedParticle->OnParticleDeath.AddDynamic(this, &ABaseCharacter::OnUsedParticleDestroyed);
+			UsedParticle->OnParticleActive.AddUniqueDynamic(this, &ABaseCharacter::OnUsedParticleActive);
+			UsedParticle->OnParticleDeath.AddUniqueDynamic(this, &ABaseCharacter::OnUsedParticleDestroyed);
 		}
 	}
 	if(UsedParticle)

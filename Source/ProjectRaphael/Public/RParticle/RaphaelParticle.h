@@ -18,8 +18,7 @@ enum class EParticleType: uint8
 	EPT_Silver UMETA(DisplayName = "Silver"),
 	EPT_White UMETA(DisplayName = "White"),
 	EPT_Green UMETA(DisplayName = "Green"),
-	EPT_Blue UMETA(DisplayName = "Blue"),
-	EPT_Red UMETA(DisplayName = "Red"),
+	EPT_BR UMETA(DisplayName = "BR"),
 	
 	EPT_MAX UMETA(DisplayName = "Default")
 };

@@ -192,6 +192,10 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Item)
 	void ChosenItemRelease();
 
+	//HennShinn!!!!
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Special)
+	void HennShinn();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -161,6 +161,11 @@ void ARaphaelParticle::ParticleActive_Implementation()
 	DropItself();
 }
 
+void ARaphaelParticle::SpecialFunction_Implementation()
+{
+	// override in child class
+}
+
 void ARaphaelParticle::SetInteractReaction_Implementation(bool bShow)
 {
 	// may be do something later

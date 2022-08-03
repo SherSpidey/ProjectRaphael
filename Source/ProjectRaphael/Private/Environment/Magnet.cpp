@@ -62,6 +62,11 @@ float AMagnet::CalculateForce(const FVector& Start, const FVector& End) const
 
 void AMagnet::ApplyForce()
 {
+	// Current magnet can not apply force
+	if(PoleType == EMagnetPoleType::EMT_Iron || PoleType == EMagnetPoleType::EMT_Nonmagnetic)
+	{
+		return ;
+	}
 	
 	TArray<AActor*> TempActors;
 	AffectionSphere->GetOverlappingActors(TempActors);
@@ -87,6 +92,7 @@ void AMagnet::ApplyForce()
 			// other actor can be influenced!
 			if(TargetPoleType != EMagnetPoleType::EMT_MAX && TargetPoleType != EMagnetPoleType::EMT_Nonmagnetic)
 			{
+				
 				// Check if other actor is a magnet
 				const AMagnet* OtherMagnet = Cast<AMagnet>(OtherActor);
 				if(OtherMagnet)
@@ -131,6 +137,8 @@ void AMagnet::ApplyForce()
 					const float ForceValue = CalculateForce(SelfPosition, TargetPosition);
 					const float Direction = (TargetPoleType != PoleType) ? 1.f : -1.f;
 
+					
+
 					const FVector Force = (SelfPosition - TargetPosition).GetSafeNormal() * ForceValue * Direction * 0.5;
 
 					// Apply Force to Player
@@ -144,7 +152,7 @@ void AMagnet::ApplyForce()
 				}
 
 				// Actor is Iron
-				if(PoleType == EMagnetPoleType::EMT_Iron)
+				if(TargetPoleType == EMagnetPoleType::EMT_Iron)
 				{
 					UActorComponent* ActorComponent = OtherActor->GetComponentByClass(UStaticMeshComponent::StaticClass());
 					if(ActorComponent)
@@ -156,9 +164,8 @@ void AMagnet::ApplyForce()
 							MagnetMesh->GetClosestPointOnCollision(TargetPosition, SelfPosition);
 						}
 						const float ForceValue = CalculateForce(SelfPosition, TargetPosition);
-						const float Direction = (TargetPoleType != PoleType) ? 1.f : -1.f;
 					
-						const FVector Force = (SelfPosition - TargetPosition).GetSafeNormal() * ForceValue * Direction * 0.5;
+						const FVector Force = (SelfPosition - TargetPosition).GetSafeNormal() * ForceValue * 0.5;
 						
 						// Apply Force to Magnet
 						StaticMeshComponent->AddForceAtLocation(Force, TargetPosition);

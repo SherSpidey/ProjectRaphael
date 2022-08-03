@@ -157,6 +157,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void ParticleSetFunctionEnable(bool Enabled);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
+	void SpecialFunction();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Show)
 	void SetInteractReaction(bool bShow);
 	virtual void SetInteractReaction_Implementation(bool bShow) override;

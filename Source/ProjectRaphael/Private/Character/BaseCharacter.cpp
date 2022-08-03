@@ -462,6 +462,17 @@ void ABaseCharacter::DropChosenItem_Implementation()
 	}
 }
 
+void ABaseCharacter::HennShinn_Implementation()
+{
+	if(UsedParticle)
+	{
+		if(UsedParticle->GetParticleType() == EParticleType::EPT_BR)
+		{
+			UsedParticle->SpecialFunction();
+		}
+	}
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -513,6 +524,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("ItemRelease", IE_Released, this, &ABaseCharacter::ChosenItemRelease);
 
 	PlayerInputComponent->BindAction("DropItem", IE_Pressed, this, &ABaseCharacter::DropChosenItem);
+
+	PlayerInputComponent->BindAction("Hennshinn", IE_Pressed, this, &ABaseCharacter::HennShinn);
 
 }
 

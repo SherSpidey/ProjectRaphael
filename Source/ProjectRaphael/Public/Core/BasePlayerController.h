@@ -26,10 +26,13 @@ protected:
 public:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
 	void SetHUDVisibility(bool Enable);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void SetCrossHairDynamic(float Scale);
+
+	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
+	void ShowRestart(bool Enable);
 	
 };

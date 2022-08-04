@@ -94,7 +94,7 @@ bool ARaphaelParticleGreen::CaptureActor()
 	}
 	for(AActor* Item : TempActors)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, Item->GetName());
+		//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, Item->GetName());
 		if(Item->ActorHasTag(FName("CollapseItem")))
 		{
 			CapturedActors.Add(Item);	

@@ -309,3 +309,11 @@ void UPayLoadComponent::DropCurrentParticle()
 	}
 }
 
+void UPayLoadComponent::DropAllParticle()
+{
+	for(int i = 0; i < PayLoads.Num(); ++i)
+	{
+		DropCurrentParticle();	
+	}
+}
+

@@ -17,14 +17,31 @@ public:
 	UFloatingComponent();
 
 protected:
+
+	UPROPERTY(BlueprintReadWrite, Category=Function)
+	AActor* OwnerActor;
+	
+	UPROPERTY(BlueprintReadWrite, Category=Function)
+	AActor* FloatingActor;
+
+	UPROPERTY(BlueprintReadWrite, Category=Function)
+	FVector LandLocation;
 	
 public:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
 	float FloatingHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
+	float ForceScale;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	void InitOwner();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
+	void ApplyForce();
 	
 
 public:	

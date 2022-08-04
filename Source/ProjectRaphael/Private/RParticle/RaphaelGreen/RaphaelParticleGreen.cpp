@@ -173,6 +173,9 @@ void ARaphaelParticleGreen::ThrowParticle_Implementation()
 	ParticleState = EGreenParticleState::EPS_Moving;
 	GetWorldTimerManager().ClearTimer(ShowTrailHandle);
 	ClearLastTrail();
+
+	//  Reset Rotation
+	SetActorRotation(FRotator(0, 0, 0));
 	
 	TrailMovement->SetVelocityInLocalSpace(InitVelocity);
 	TrailMovement->bShouldBounce = true;

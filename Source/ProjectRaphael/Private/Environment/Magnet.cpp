@@ -168,11 +168,11 @@ void AMagnet::ApplyForce()
 						const FVector Force = (SelfPosition - TargetPosition).GetSafeNormal() * ForceValue * 0.5;
 						
 						// Apply Force to Magnet
-						StaticMeshComponent->AddForceAtLocation(Force, TargetPosition);
+						StaticMeshComponent->AddForceAtLocation(Force * 0.8, TargetPosition);
 
 						if(MagnetType != EMagnetType::EMT_Fixed)
 						{
-							MagnetMesh->AddForceAtLocation(-1 * Force, SelfPosition);
+							MagnetMesh->AddForceAtLocation(-1 * Force * 0.2, SelfPosition);
 						}
 					}
 				}

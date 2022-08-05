@@ -17,6 +17,7 @@ public:
 	UFloatingComponent();
 
 protected:
+	
 	bool bSpawned;
 
 	UPROPERTY(BlueprintReadWrite, Category=Function)
@@ -32,6 +33,10 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 	
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
+	bool bActivated;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
 	float FloatingHeight;
 
@@ -47,6 +52,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
 	int SpawnCount;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Setting)
+	float SpawnCoolDownTime;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -60,6 +68,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category=Function)
 	void SetLandPosition(FVector Location);
+
+	UFUNCTION(BlueprintCallable, Category=Function)
+	void SetActiveFloatingSpawn(bool Enable);
 	
 
 public:	

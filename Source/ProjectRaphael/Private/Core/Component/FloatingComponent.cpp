@@ -6,10 +6,12 @@
 // Sets default values for this component's properties
 UFloatingComponent::UFloatingComponent():
 bSpawned(false),
+bActivated(true),
 FloatingHeight(30.f),
 ForceScale(5.f),
 LoseControlRadius(20.f),
-SpawnCount(1)
+SpawnCount(1),
+SpawnCoolDownTime(2.f)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -60,7 +62,7 @@ void UFloatingComponent::ApplyForce_Implementation()
 		const UWorld* World = GetWorld();
 		if(World)
 		{
-			World->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UFloatingComponent::ResetSpawn, 2.f, false);
+			World->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UFloatingComponent::ResetSpawn, SpawnCoolDownTime, false);
 		}
 		return ;
 	}
@@ -94,13 +96,29 @@ void UFloatingComponent::SetLandPosition_Implementation(FVector Location)
 	LandLocation = Location;
 }
 
+void UFloatingComponent::SetActiveFloatingSpawn(bool Enable)
+{
+	bActivated = Enable;
+}
+
 // Called every frame
 void UFloatingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SpawnSetParticle();
-	ApplyForce();
+	if(bActivated)
+	{
+		SpawnSetParticle();
+		ApplyForce();
+	}else if(FloatingActor)
+	{
+		FloatingActor = nullptr;
+		const UWorld* World = GetWorld();
+		if(World)
+		{
+			World->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UFloatingComponent::ResetSpawn, SpawnCoolDownTime, false);
+		}
+	}
 	// ...
 }
 
